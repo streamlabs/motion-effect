@@ -1,5 +1,4 @@
-cmake_minimum_required(VERSION 3.5)
-project(motion-effect)
+cmake_minimum_required(VERSION 3.22...3.25)
 
 set(motion-transition_SOURCES
 	./src/helper.c
@@ -25,4 +24,6 @@ set_target_properties(motion-transition PROPERTIES FOLDER "plugins/motion-transi
 set_property(GLOBAL APPEND PROPERTY OBS_MODULE_LIST "motion-transition")
 set_target_properties(motion-transition PROPERTIES PREFIX "")
 
-setup_plugin_target(motion-transition)
+# cmake-format: off
+set_target_properties_obs(motion-transition PROPERTIES FOLDER plugins/motion-transition PREFIX "")
+# cmake-format: on

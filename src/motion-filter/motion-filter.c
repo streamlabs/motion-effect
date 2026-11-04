@@ -174,7 +174,7 @@ static void update_variation_data(motion_filter_data_t *filter)
 
 	if (!is_reverse(filter)) {
 		struct obs_transform_info info;
-		obs_sceneitem_get_info(filter->item, &info);
+		obs_sceneitem_get_info2(filter->item, &info);
 		if (!filter->use_start_position) {
 			var->point_x[0] = info.pos.x;
 			var->point_y[0] = info.pos.y;
@@ -597,7 +597,7 @@ static bool dest_grab_current_position_clicked(obs_properties_t *props,
 	if (item) {
 		struct obs_transform_info info;
 		int width, height;
-		obs_sceneitem_get_info(item, &info);
+		obs_sceneitem_get_info2(item, &info);
 		cal_size(item, info.scale.x, info.scale.y, &width, &height);
 		// Set setting property values to match the source's current position
 		obs_data_t *settings = obs_source_get_settings(filter->context);

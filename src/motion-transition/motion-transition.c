@@ -70,6 +70,36 @@ struct transition_data {
 	bool                transitioning;
 };
 
+/* Find the item in `scene` that shows `source` on the same canvas as
+ * `item_a`. With dual output a scene holds one item per canvas for each
+ * source, so a name-only lookup (obs_scene_find_source) can return the
+ * partner item from the other canvas. */
+struct find_partner_data {
+	obs_source_t *source;
+	struct obs_video_info *canvas;
+	obs_sceneitem_t *found;
+};
+
+static bool find_partner_cb(obs_scene_t *scene, obs_sceneitem_t *item, void *param)
+{
+	UNUSED_PARAMETER(scene);
+	struct find_partner_data *d = param;
+	if (obs_sceneitem_get_source(item) == d->source &&
+	    obs_sceneitem_get_canvas(item) == d->canvas) {
+		d->found = item;
+		return false;
+	}
+	return true;
+}
+
+static obs_sceneitem_t *find_partner_item(obs_scene_t *scene, obs_sceneitem_t *item_a)
+{
+	struct find_partner_data d = {obs_sceneitem_get_source(item_a),
+				      obs_sceneitem_get_canvas(item_a), NULL};
+	obs_scene_enum_items(scene, find_partner_cb, &d);
+	return d.found;
+}
+
 static bool append_item_list(obs_scene_t *scene, obs_sceneitem_t *item_a, void *data)
 {
 	transition_data_t *tr = data;
@@ -98,14 +128,13 @@ static bool append_item_list(obs_scene_t *scene, obs_sceneitem_t *item_a, void *
 		crop_b = &next->start_crop;
 	}
 
-	obs_sceneitem_get_info(item_a, info_a);
+	obs_sceneitem_get_info2(item_a, info_a);
 	obs_sceneitem_get_crop(item_a, crop_a);
-	item_b = obs_scene_find_source(list_cmp->scene, 
-		obs_source_get_name(source_a));
+	item_b = find_partner_item(list_cmp->scene, item_a);
 
 
 	if (item_b) {
-		obs_sceneitem_get_info(item_b, info_b);
+		obs_sceneitem_get_info2(item_b, info_b);
 		obs_sceneitem_get_crop(item_b, crop_b);
 		transform_variation = same_transform_type(info_a, info_b) && (item_a->user_visible==item_b->user_visible);
 	}
